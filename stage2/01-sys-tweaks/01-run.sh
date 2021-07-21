@@ -1,7 +1,5 @@
 #!/bin/bash -e
 
-install -m 755 files/resize2fs_once	"${ROOTFS_DIR}/etc/init.d/"
-
 install -d				"${ROOTFS_DIR}/etc/systemd/system/rc-local.service.d"
 install -m 644 files/ttyoutput.conf	"${ROOTFS_DIR}/etc/systemd/system/rc-local.service.d/"
 
@@ -39,12 +37,10 @@ if [ "${USE_QEMU}" = "1" ]; then
 	echo "enter QEMU mode"
 	install -m 644 files/90-qemu.rules "${ROOTFS_DIR}/etc/udev/rules.d/"
 	on_chroot << EOF
-systemctl disable resize2fs_once
 EOF
 	echo "leaving QEMU mode"
 else
 	on_chroot << EOF
-systemctl enable resize2fs_once
 EOF
 fi
 
@@ -66,3 +62,15 @@ usermod --pass='*' root
 EOF
 
 rm -f "${ROOTFS_DIR}/etc/ssh/"ssh_host_*_key*
+
+# Generate an initramfs
+
+on_chroot <<EOF
+set +x
+ls /lib/modules
+
+update-initramfs -c -k \$(ls /lib/modules)
+echo "initramfs initrd.img-\$(ls /lib/modules) followkernel" >> /boot/config.txt
+echo "enable_uart=1" >> /boot/config.txt
+EOF
+

@@ -87,7 +87,7 @@ if [ "${USE_QCOW2}" = "0" ] && [ "${NO_PRERUN_QCOW2}" = "0" ]; then
 	ROOT_DEV="$(mount | grep "${ROOTFS_DIR} " | cut -f1 -d' ')"
 
 	unmount "${ROOTFS_DIR}"
-	zerofree "${ROOT_DEV}"
+	#zerofree "${ROOT_DEV}"
 
 	unmount_image "${IMG_FILE}"
 else
